@@ -16,6 +16,7 @@ Command line switches:
 Limitations:
 - Only the first 2 base stations status is displayed in the system tray hover text
 - All the base stations in range are discovered and triggered on via wakeup
+- Tested only on my HTC BS with latest firmware and on Windows 10
 
 Requirements:
 - HTC Base stations 1.0
