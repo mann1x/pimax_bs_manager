@@ -29,3 +29,8 @@ Single executable available with ini and ico file in a ZIP file:
 - Name: pimax_bsaw.zip
 - Size: 11001414 bytes (10 MiB)
 - SHA256: E7B5BBC4CE049CF8DDA68C5A7BEF08A2EB5A0E7F75EC2DEE3E9E02D0AFDDDD24
+
+# Changelog:
+- v1.1
+-- Fix: HeadSet status not updated properly from On to Off
+-- Executable: added icon
