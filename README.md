@@ -25,12 +25,11 @@ Requirements:
 Single executable available with ini and ico file in a ZIP file:
 - Built with: pyinstaller --onefile Pimax_BSAW.py --hidden-import pkg_resources --hidden-import infi.systray --hidden-import bleak --add-binary "BleakUWPBridge.dll;BleakUWPBridge" --noconsole
 - You need to copy BleakUWPBridge.dll in the script directory from %HOMEPATH%\Miniconda3\Lib\site-packages\bleak\backends\dotnet\ (in this case using Miniconda)
-
-- Name: pimax_bsaw.zip
-- Size: 11001414 bytes (10 MiB)
-- SHA256: E7B5BBC4CE049CF8DDA68C5A7BEF08A2EB5A0E7F75EC2DEE3E9E02D0AFDDDD24
+- Name: pimax_bsaw_v1_1.zip
+  - Size: 10987276 bytes (10 MiB)
+  - SHA256: 4AA927564D63CF21013C47A35B8F9AB54C2411F0F7836ECB13A9BE6CA8EC383D
 
 # Changelog:
 - v1.1
--- Fix: HeadSet status not updated properly from On to Off
--- Executable: added icon
+  - Fix: HeadSet status not updated properly from On to Off
+  - Executable: added icon
