@@ -3,6 +3,8 @@
 Original code from:
 https://github.com/TheMalkavien/lhbsv1_pimax
 
+Thanks a lot to TheMalkavien for posting is work and all the previous contributors!
+
 Added:
 - Discovery of base stations
 - System tray icon with status of Headset and Base stations via hover text
