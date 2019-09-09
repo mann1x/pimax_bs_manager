@@ -36,6 +36,9 @@ Single executable available with ini and ico file in a ZIP file:
   - Size: 11006346 bytes (10 MiB)
   - SHA256: ACFF3A3358E1487CFD67931D30513A935DC308D0535B8F1F0AA4500818E0655C
 
+Support:
+- None, but you can post in this Pimax forum thread for help: https://forum.pimaxvr.com/t/how-to-power-off-basestations-remotely/15205/109
+
 # Changelog:
 - v1.2
   - Fix: Switch to using LightHouse DB json file from Pimax runtime folder 
