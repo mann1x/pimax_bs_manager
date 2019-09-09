@@ -8,7 +8,9 @@ Thanks a lot to TheMalkavien for posting is work and all the previous contributo
 Usage:
 - Just run the executable or the Python script (tested on 3.7, use it if you want to check the console output for errors) 
 - Status is only available on the hover text on the system tray icon (just move the mouse over it and you'll get HS and BS status)
-Added:
+- If you have Windows installed not in C: please check the location of the LightHouse DB json file in the .ini file
+
+New from the original script:
 - Discovery of base stations
 - System tray icon with status of Headset and Base stations via hover text
 - Re-discovery of base stations
