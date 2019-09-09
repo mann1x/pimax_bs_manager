@@ -5,6 +5,9 @@ https://github.com/TheMalkavien/lhbsv1_pimax
 
 Thanks a lot to TheMalkavien for posting is work and all the previous contributors!
 
+Usage:
+- Just run the executable or the Python script (tested on 3.7, use it if you want to check the console output for errors) 
+- Status is only available on the hover text on the system tray icon (just move the mouse over it and you'll get HS and BS status)
 Added:
 - Discovery of base stations
 - System tray icon with status of Headset and Base stations via hover text
@@ -21,6 +24,8 @@ Limitations:
 Requirements:
 - HTC Base stations 1.0
 - Python dependencies: on top of the original dependencies there's infi.systray for the Windows System Tray
+- Bluetooth in Windows with BLE protocol (it does NOT use the Pimax or Vive Bluetooth controller)
+- The Base stations must be paired in Windows (on Windows 10 you should get an Add Device popup for each BS)
 
 Single executable available with ini and ico file in a ZIP file:
 - Built with: pyinstaller --onefile Pimax_BSAW.py --hidden-import pkg_resources --hidden-import infi.systray --hidden-import bleak --add-binary "BleakUWPBridge.dll;BleakUWPBridge" --noconsole
@@ -30,6 +35,10 @@ Single executable available with ini and ico file in a ZIP file:
   - SHA256: 4AA927564D63CF21013C47A35B8F9AB54C2411F0F7836ECB13A9BE6CA8EC383D
 
 # Changelog:
+- v1.2
+  - Fix: Switch to using LightHouse DB json file from Pimax runtime folder 
+  - New: version in system tray
+  - New: BS status for Discovered, Wakeup, Pinging, Errors
 - v1.1
   - Fix: HeadSet status not updated properly from On to Off
   - Executable: added icon
