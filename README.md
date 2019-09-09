@@ -30,9 +30,9 @@ Requirements:
 Single executable available with ini and ico file in a ZIP file:
 - Built with: pyinstaller --onefile Pimax_BSAW.py --hidden-import pkg_resources --hidden-import infi.systray --hidden-import bleak --add-binary "BleakUWPBridge.dll;BleakUWPBridge" --noconsole
 - You need to copy BleakUWPBridge.dll in the script directory from %HOMEPATH%\Miniconda3\Lib\site-packages\bleak\backends\dotnet\ (in this case using Miniconda)
-- Name: pimax_bsaw_v1_1.zip
-  - Size: 10987276 bytes (10 MiB)
-  - SHA256: 4AA927564D63CF21013C47A35B8F9AB54C2411F0F7836ECB13A9BE6CA8EC383D
+- Name: pimax_bsaw_v1_2.zip
+  - Size: 11006346 bytes (10 MiB)
+  - SHA256: ACFF3A3358E1487CFD67931D30513A935DC308D0535B8F1F0AA4500818E0655C
 
 # Changelog:
 - v1.2
