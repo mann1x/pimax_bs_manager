@@ -6,21 +6,23 @@ https://github.com/TheMalkavien/lhbsv1_pimax
 Thanks a lot to TheMalkavien for posting is work and all the previous contributors!
 
 Usage:
-- Just run the executable or the Python script (tested on 3.7, use it if you want to check the console output for errors) 
+- Just run the executable or the Python script (tested on 3.7.3) 
 - Status is only available on the hover text on the system tray icon (just move the mouse over it and you'll get HS and BS status)
 - If you have Windows installed not in C: please check the location of the LightHouse DB json file in the .ini file
+- Console log output with autoscroll and copy to clipboard available via system tray menu
 
 New from the original script:
 - Discovery of base stations
-- System tray icon with status of Headset and Base stations via hover text
+- System tray icon with status of Headset and Base stations via mouse hover text
+- Console log output
 - Re-discovery of base stations
+- Issue of Standby command once the Headset is Off
 
 Command line switches:
  - "--debug_ignore_usb", "Disable the USB search for headset"
+ - "--debug_logs", "Enable DEBUG level logs"
 
 Limitations:
-- Only the first 2 base stations status is displayed in the system tray hover text
-- All the base stations in range are discovered and triggered on via wakeup
 - Tested only on my HTC BS with latest firmware and on Windows 10
 
 Requirements:
@@ -30,16 +32,26 @@ Requirements:
 - The Base stations must be paired in Windows (on Windows 10 you should get an Add Device popup for each BS)
 
 Single executable available with ini and ico file in a ZIP file:
-- Built with: pyinstaller --onefile Pimax_BSAW.py --hidden-import pkg_resources --hidden-import infi.systray --hidden-import bleak --add-binary "BleakUWPBridge.dll;BleakUWPBridge" --noconsole
+- Built with: pyinstaller --onefile Pimax_BSAW.py --hidden-import pkg_resources --hidden-import infi.systray --hidden-import bleak --add-binary "BleakUWPBridge.dll;BleakUWPBridge" --icon=pimax.ico --version-file pimax_bsaw_version_info.txt --noconsole
 - You need to copy BleakUWPBridge.dll in the script directory from %HOMEPATH%\Miniconda3\Lib\site-packages\bleak\backends\dotnet\ (in this case using Miniconda)
-- Name: pimax_bsaw_v1_2.zip
-  - Size: 11006346 bytes (10 MiB)
-  - SHA256: ACFF3A3358E1487CFD67931D30513A935DC308D0535B8F1F0AA4500818E0655C
+- Name: pimax_bsaw_v1_3.zip
+  -Size: 16362424 bytes (15 MiB)
+  -SHA256: 9E87C312C37936177F0F28044A24247569A0410952799DE297EB93CF1CCC663D
 
 Support:
 - None, but you can post in this Pimax forum thread for help: https://forum.pimaxvr.com/t/how-to-power-off-basestations-remotely/15205/109
 
 # Changelog:
+
+- v1.3
+  - Fix: Too many small fixes and enhancements to list 
+  - New: Console log output with autoscroll and copy to clipboard
+  - New: DEBUG log level can be enable via command line switch
+  - New: Separate threads for BS loops
+  - New: Proper logging output
+  - New: Standby command issued to BS when HS is On>Off
+  - New: BS Timeout configurable in .ini
+  - New: Added version info to executable
 - v1.2
   - Fix: Switch to using LightHouse DB json file from Pimax runtime folder 
   - New: version in system tray
