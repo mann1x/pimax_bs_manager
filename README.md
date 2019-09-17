@@ -34,15 +34,16 @@ Requirements:
 Single executable available with ini and ico file in a ZIP file:
 - Built with: pyinstaller --onefile Pimax_BSAW.py --hidden-import pkg_resources --hidden-import infi.systray --hidden-import bleak --add-binary "BleakUWPBridge.dll;BleakUWPBridge" --icon=pimax.ico --version-file pimax_bsaw_version_info.txt --noconsole
 - You need to copy BleakUWPBridge.dll in the script directory from %HOMEPATH%\Miniconda3\Lib\site-packages\bleak\backends\dotnet\ (in this case using Miniconda)
-- Name: pimax_bsaw_v1_3_1.zip
-  - Size: 16410747 bytes (15 MiB)
-  - SHA256: F78EF3DE7379BB632596CCF8041128AA3F13AFF2C4D2174EE07770EA5CA820AB
+- Name: pimax_bsaw_v1_4_0.zip
+  - Size: 16412485 bytes (15 MiB)
+  - SHA256: F89C3F3825210AF0AA6CF83A0A407B960730DA9ED872C9D36179F72955FBD780
 
 Support:
 - None, but you can post in this Pimax forum thread for help: https://forum.pimaxvr.com/t/how-to-power-off-basestations-remotely/15205/109
 
 # Changelog:
-
+- v1.4.0
+  - Fix: bleak python library used properly
 - v1.3.1
   - Fix: Console log window centered on screen 
   - New: Exceptions handling for main thread with Windows 10 toast notifications
