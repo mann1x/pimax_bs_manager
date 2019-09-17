@@ -32,10 +32,10 @@ VSVersionInfo(
         [StringStruct(u'Comments', u'GPL 3.0 License                             '),
         StringStruct(u'CompanyName', u'https://github.com/mann1x/pimax_bs_manager/                 '),
         StringStruct(u'FileDescription', u'Pimax Base Stations Manager                      '),
-        StringStruct(u'FileVersion', u'1.3                 '),
+        StringStruct(u'FileVersion', u'1.4.0               '),
         StringStruct(u'LegalCopyright', u'                                                                                                    '),
         StringStruct(u'ProductName', u'Pimax_BSAW                                            '),
-        StringStruct(u'ProductVersion', u'1.3                                               ')])
+        StringStruct(u'ProductVersion', u'1.4.0                                             ')])
       ]), 
     VarFileInfo([VarStruct(u'Translation', [0, 1200])])
   ]

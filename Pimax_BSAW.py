@@ -35,7 +35,7 @@ from bleak import BleakClient
 from bleak import discover
 from bleak import _logger as logger
 
-VERSION = "1.3.1"
+VERSION = "1.4.0"
 PIMAX_USB_VENDOR_ID = 0
 LH_DB_FILE = ""
 SLEEP_TIME_SEC_USB_FIND = 5
@@ -47,8 +47,8 @@ BS_CMD_ID_WAKEUP_DEFAULT_TIMEOUT = 0x1201
 BS_CMD_ID_WAKEUP_TIMEOUT = 0x1202
 BS_DEFAULT_ID = 0xffffffff
 BS_TIMEOUT_IN_SEC = 60
-BS_LOOP_SLEEP = 20
-BS_LOOP_RETRY = 3
+BS_LOOP_SLEEP = 30
+BS_LOOP_RETRY = 10
 
 TRAY_ICON = "pimax.ico"
 
@@ -266,12 +266,31 @@ async def wake_up_bs(bs_mac_address, loop):
         return False
     return True
 
-async def ping_bs(bs_mac_address, bs_unique_id, loop):
+async def ping_bs(bs_mac_address, bs_unique_id, bs_label, systray, loop):
+    global hs_tlock
+    global bs1_tlock
+    global bs1_status
+    global bs2_tlock
+    global bs2_status
+    global quit_main_loop
     try:
         async with BleakClient(bs_mac_address, loop=loop) as client:
             cmd = build_bs_ble_cmd(BS_CMD_ID_WAKEUP_TIMEOUT, BS_TIMEOUT_IN_SEC, bs_unique_id)
-            logging.debug("PING CMD : " + str(binascii.hexlify(cmd)))
+            logging.debug(bs_label + " PING CMD : " + str(binascii.hexlify(cmd)))
             await client.write_gatt_char(BS_CMD_BLE_ID, cmd)
+            logging.info("Success ping for " + bs_label)
+            if await client.is_connected():
+                logging.debug(bs_label + " connected")
+                if bs_label == "BS1":
+                    bs1_status = "Pinging"
+                else:
+                    bs2_status = "Pinging"
+                systray.update(hover_text=tray_label())
+                while await client.is_connected():
+                    if hs_tlock or bs1_tlock or bs2_tlock or quit_main_loop:
+                        break
+                    time.sleep(BS_LOOP_SLEEP)
+                    await client.write_gatt_char(BS_CMD_BLE_ID, cmd)
     except Exception as e:
         logging.debug("ERROR DURING PING BLE : " + str(e))
         return False
@@ -457,7 +476,6 @@ def on_quit_callback(systray):
     global quit_main_loop
     quit_main_loop = True
     logthr.destroy()
-    #sys.exit()
 
 class bs1Thread(threading.Thread):
     def __init__(self, systray, autoStart=True):
@@ -467,6 +485,10 @@ class bs1Thread(threading.Thread):
         self.start = self.start_local
         self.lock = threading.Lock()
         self.lock.acquire() #lock until variables are set
+        loop = asyncio.new_event_loop()
+        loop.set_debug(DEBUG_LOGS)
+        asyncio.set_event_loop(loop)
+        self.loop = loop
         if autoStart:
             self.start() #automatically start thread on init
 
@@ -487,10 +509,8 @@ class bs1Thread(threading.Thread):
             
             bs1_wakeup_cmd = False
             ping_cmd = False
-
-            loop = asyncio.new_event_loop()
-            loop.set_debug(False)
-            asyncio.set_event_loop(loop)
+            
+            loop = self.loop
 
             while True:
                 if quit_main_loop:
@@ -514,7 +534,7 @@ class bs1Thread(threading.Thread):
                 if bs1_tlock:
                     logging.debug("BS1 loop wait lock, skipping keepalive")
                     continue
-                
+
                 if not bs1_wakeup_cmd or (time.time()-t_last_cmd > BS_TIMEOUT_IN_SEC-5 and not ping_cmd):
                     logging.debug("Waking up BS1 MAC=" + bs1_mac)
                     if not loop.run_until_complete(wake_up_bs(bs1_mac, loop)):
@@ -530,11 +550,10 @@ class bs1Thread(threading.Thread):
                         bs1_wakeup_cmd = True
                         bs1_status = "Wakeup"
                         systray.update(hover_text=tray_label())
-                    t_last_cmd = time.time()
                     continue
 
                 logging.debug("Pinging BS1: MAC=" + bs1_mac + " ID=" + str(bs1_snhx)[-8:].upper()) 
-                if not loop.run_until_complete(ping_bs(bs1_mac, bs1_sn, loop)):
+                if not loop.run_until_complete(ping_bs(bs1_mac, bs1_sn, "BS1", systray, loop)):
                     logging.info("Error ping for BS1")
                     t_wait_loop = BS_LOOP_RETRY
                     ping_cmd = False
@@ -548,7 +567,6 @@ class bs1Thread(threading.Thread):
                     ping_cmd = True
                     bs1_status = "Pinging"
                     systray.update(hover_text=tray_label())
-                t_last_cmd = time.time()
 
         except Exception as err:
             logging.debug("Error: %s in main thread: %s.\n" % (self.__class__.__name__, str(err)))
@@ -569,6 +587,10 @@ class bs2Thread(threading.Thread):
         self.start = self.start_local
         self.lock = threading.Lock()
         self.lock.acquire() #lock until variables are set
+        loop = asyncio.new_event_loop()
+        loop.set_debug(DEBUG_LOGS)
+        asyncio.set_event_loop(loop)
+        self.loop = loop
         if autoStart:
             self.start() #automatically start thread on init
 
@@ -589,9 +611,7 @@ class bs2Thread(threading.Thread):
             bs2_wakeup_cmd = False
             ping_cmd = False
 
-            loop = asyncio.new_event_loop()
-            loop.set_debug(False)
-            asyncio.set_event_loop(loop)
+            loop = self.loop
 
             while True:
                 if quit_main_loop:
@@ -631,11 +651,10 @@ class bs2Thread(threading.Thread):
                         bs2_wakeup_cmd = True
                         bs2_status = "Wakeup"
                         systray.update(hover_text=tray_label())
-                    t_last_cmd = time.time()
                     continue
 
                 logging.debug("Pinging BS2: MAC=" + bs2_mac + " ID=" + str(bs2_snhx)[-8:].upper()) 
-                if not loop.run_until_complete(ping_bs(bs2_mac, bs2_sn, loop)):
+                if not loop.run_until_complete(ping_bs(bs2_mac, bs2_sn, "BS2", systray, loop)):
                     logging.info("Error ping for BS2")
                     t_wait_loop = BS_LOOP_RETRY
                     ping_cmd = False
@@ -649,7 +668,6 @@ class bs2Thread(threading.Thread):
                     ping_cmd = True
                     bs2_status = "Pinging"
                     systray.update(hover_text=tray_label())
-                t_last_cmd = time.time()
 
         except Exception as err:
             logging.debug("Error: %s in main thread: %s.\n" % (self.__class__.__name__, str(err)))
