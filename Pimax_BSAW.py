@@ -28,13 +28,14 @@ import threading
 import atexit
 
 from infi.systray import SysTrayIcon
+from win10toast import ToastNotifier
 
 import pywinusb.hid as hid
 from bleak import BleakClient
 from bleak import discover
 from bleak import _logger as logger
 
-VERSION = "1.3"
+VERSION = "1.3.1"
 PIMAX_USB_VENDOR_ID = 0
 LH_DB_FILE = ""
 SLEEP_TIME_SEC_USB_FIND = 5
@@ -140,6 +141,7 @@ class LogWnd(wx.Frame):
         hbox.Add(closeBtn, 0, wx.ALL|wx.CENTER, 5)
         sizer.Add(hbox, flag=wx.ALL|wx.CENTER, border=10)
         panel.SetSizer(sizer)
+        self.CenterOnScreen()
 
     def onCloseButton(self, e):
         self.Show(False)
@@ -696,7 +698,13 @@ def main_loop(systray):
             time.sleep(5)
 
     except (Exception) as err:
-        sys.stderr.write("Error in main thread: %s.\n", str(err))
+        if not quit_main_loop:
+            toaster.show_toast("PIMAX_BSAW ERROR",
+                       "Main loop exception: "+ str(err),
+                       icon_path=TRAY_ICON,
+                       duration=5,
+                       threaded=True)
+            while toaster.notification_active(): time.sleep(0.1)        
         systray.shutdown()
 
 class LevelFilter(object):
@@ -707,49 +715,60 @@ class LevelFilter(object):
         return record.levelno >= self.level
               
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--debug_ignore_usb", help="Disable the USB search for headset", action="store_true")
-    parser.add_argument("--debug_logs", help="Enable DEBUG level logs", action="store_true")
+    toaster = ToastNotifier()
+    try:    
+        parser = argparse.ArgumentParser()
+        parser.add_argument("--debug_ignore_usb", help="Disable the USB search for headset", action="store_true")
+        parser.add_argument("--debug_logs", help="Enable DEBUG level logs", action="store_true")
 
-    args = parser.parse_args()
-    DEBUG_BYPASS_USB = args.debug_ignore_usb
-    DEBUG_LOGS = args.debug_logs
+        args = parser.parse_args()
+        DEBUG_BYPASS_USB = args.debug_ignore_usb
+        DEBUG_LOGS = args.debug_logs
 
-    if DEBUG_LOGS:
-        MIN_LEVEL = logging.DEBUG
-        os.environ["BLEAK_LOGGING"] = "True"
-    else:
-        MIN_LEVEL = logging.INFO
-        os.environ["BLEAK_LOGGING"] = "False"
+        if DEBUG_LOGS:
+            MIN_LEVEL = logging.DEBUG
+            os.environ["BLEAK_LOGGING"] = "True"
+        else:
+            MIN_LEVEL = logging.INFO
+            os.environ["BLEAK_LOGGING"] = "False"
 
-    FORMAT = "%(asctime)s %(levelname)s (%(module)s): %(message)s"
-    logging.basicConfig(format=FORMAT, level=MIN_LEVEL)
-    log_formatter = logging.Formatter("%(asctime)s %(levelname)s (%(module)s): %(message)s", "%H:%M:%S")
-    h = logging.StreamHandler(sys.stdout)
-    h.setFormatter(log_formatter)
-    h.setLevel(MIN_LEVEL)
+        FORMAT = "%(asctime)s %(levelname)s (%(module)s): %(message)s"
+        logging.basicConfig(format=FORMAT, level=MIN_LEVEL)
+        log_formatter = logging.Formatter("%(asctime)s %(levelname)s (%(module)s): %(message)s", "%H:%M:%S")
+        h = logging.StreamHandler(sys.stdout)
+        h.setFormatter(log_formatter)
+        h.setLevel(MIN_LEVEL)
 
-    logthr = runLogThread()
+        logthr = runLogThread()
 
-    wx_handler = wxLogHandler(lambda: logthr.frame)
-    wx_handler.setFormatter(log_formatter)
-    wx_handler.setLevel(MIN_LEVEL)
-    wx_handler.addFilter(LevelFilter(MIN_LEVEL))
-    logging.getLogger().addHandler(wx_handler)
+        wx_handler = wxLogHandler(lambda: logthr.frame)
+        wx_handler.setFormatter(log_formatter)
+        wx_handler.setLevel(MIN_LEVEL)
+        wx_handler.addFilter(LevelFilter(MIN_LEVEL))
+        logging.getLogger().addHandler(wx_handler)
 
-    logger.addHandler(h)    
-    logger = logging.getLogger(__name__)
-    
-    load_configuration()
- 
-    icon = TRAY_ICON
-    hover_text = tray_label()
+        logger.addHandler(h)    
+        logger = logging.getLogger(__name__)
+        
+        load_configuration()
+     
+        icon = TRAY_ICON
+        hover_text = tray_label()
 
-    menu_options = (('Run BaseStation Discovery', None, bs_discovery),
-                    ('Open console log', None, consoleWin),
-                    ('Version '+VERSION, None, do_nothing)
-                    )
-    
-    with SysTrayIcon(icon, hover_text, menu_options, on_quit=on_quit_callback) as systray:
-        bs_discovery(systray)        
-        main_loop(systray)        
+        menu_options = (('Run BaseStation Discovery', None, bs_discovery),
+                        ('Open console log', None, consoleWin),
+                        ('Version '+VERSION, None, do_nothing)
+                        )
+        
+        with SysTrayIcon(icon, hover_text, menu_options, on_quit=on_quit_callback) as systray:
+            bs_discovery(systray)        
+            main_loop(systray)        
+
+    except (Exception) as err:
+        if not quit_main_loop:
+            toaster.show_toast("PIMAX_BSAW ERROR",
+                       "Main thread exception: "+ str(err),
+                       icon_path=TRAY_ICON,
+                       duration=5,
+                       threaded=True)
+            while toaster.notification_active(): time.sleep(0.1)        
