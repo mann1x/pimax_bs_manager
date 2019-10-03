@@ -49,7 +49,7 @@ class MainObj:
         Init function will initialize the instance with default runtime values
         :rtype: object
         """
-        self.version = "1.5.0"
+        self.version = "1.5.1"
         self.pimax_usb_vendor_id = 0
         self.lh_db_file = ""
         self.sleep_time_sec_usb_find = 7
@@ -738,6 +738,7 @@ class HeadSet(threading.Thread):
         self.connected = False
         self.hs_vendor = ""
         self.hs_product = ""
+        self.dumpusb = False
 
         if autostart:
             self.start()  # automatically start thread on init
@@ -769,12 +770,23 @@ class HeadSet(threading.Thread):
                     self.islocked = False
                     continue
                 self.islocked = False
-                all_devices = hid.HidDeviceFilter(vendor_id=self.maininst.pimax_usb_vendor_id).get_devices()
-                if not all_devices:
+                all_devices = hid.HidDeviceFilter().get_devices()
+                flt_devices = hid.HidDeviceFilter(vendor_id=self.maininst.pimax_usb_vendor_id).get_devices()
+                if maininst.debug_logs:
+                    if not self.dumpusb:
+                        self.dumpusb = True
+                        logging.debug("DUMP USB DEVICES:")
+                        for device in all_devices:
+                            device.open()
+                            hs_vendor = str(device.vendor_name) + " (" + str(device.vendor_id) + ")"
+                            hs_product = str(device.product_name) + " (" + str(device.product_id) + ")"
+                            logging.debug("USB V: " + hs_vendor + " P:" + hs_product)
+                            device.close()
+                if not flt_devices:
                     logging.debug(self.label + " not found on USB")
                     self.setstatus("Off")
                 else:
-                    for device in all_devices:
+                    for device in flt_devices:
                         try:
                             device.open()
                             self.setstatus("On")
@@ -917,14 +929,16 @@ class LogWnd(wx.Frame):
         #wx.lib.inspection.InspectionTool().Show()
 
         try:
-            frame_style = wx.CAPTION
+            frame_style = wx.DEFAULT_FRAME_STYLE | wx.RESIZE_BORDER
+            frame_style = frame_style & ~ (wx.RESIZE_BORDER | wx.MAXIMIZE_BOX)
+
             wx.lib.colourdb.updateColourDB()
 
             self.wxorange = wx.Colour("ORANGE RED")
             self.wxdarkgreen = wx.Colour("DARK GREEN")
 
             wx.Frame.__init__(self, None,
-                              title="Status panel", style=frame_style | wx.RESIZE_BORDER)
+                              title="Status panel", style=frame_style)
 
             self.Bind(EVT_LOG_MSG, self.on_log_msg)
 
@@ -1762,6 +1776,9 @@ def main(_logger):
 
                 hsthr.start()
 
+                updatethr = threading.Thread(target=updatepaneldata, args=())
+                updatethr.start()
+
                 maininst.discovery = threading.Thread(target=bs_discovery, args=(systray,))
                 maininst.discovery.start()
                 maininst.discovery.join()
@@ -1773,9 +1790,6 @@ def main(_logger):
                 time.sleep(1)
                 bs2thr.start()
                 logging.debug("Threads started")
-
-                updatethr = threading.Thread(target=updatepaneldata, args=())
-                updatethr.start()
 
                 while True:
                     if maininst.quit_main:
