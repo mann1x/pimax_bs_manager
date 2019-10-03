@@ -49,7 +49,7 @@ class MainObj:
         Init function will initialize the instance with default runtime values
         :rtype: object
         """
-        self.version = "1.5.1"
+        self.version = "1.5.2"
         self.pimax_usb_vendor_id = 0
         self.lh_db_file = ""
         self.sleep_time_sec_usb_find = 7

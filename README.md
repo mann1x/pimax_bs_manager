@@ -53,6 +53,9 @@ Todo:
 - Support for other Headsets  
 
 # Changelog:
+- v1.5.2
+    - Fix: Removed verify write from BLE commands
+    - New: additional debug messages
 - v1.5.1
     - New: Dump USB HID in logs if run with debug_logs flag
     - Fix: small fixes for the dashboard
