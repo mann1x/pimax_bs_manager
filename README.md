@@ -53,6 +53,9 @@ Todo:
 - Support for other Headsets  
 
 # Changelog:
+- v1.5.1
+    - New: Dump USB HID in logs if run with debug_logs flag
+    - Fix: small fixes for the dashboard
 - v1.5.0
     - New: added "--version" switch to display version number in a toast notification
     - New: (almost) complete code refactoring
