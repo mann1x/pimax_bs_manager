@@ -202,7 +202,7 @@ class BaseStations(threading.Thread):
         self.lock.acquire()  # lock until variables are set
         self.maininst = _maininst
         self.label = label
-        self.bs_cmd_verify = True
+        self.bs_cmd_verify = False
         self.bs_cmd_ble_id = "0000cb01-0000-1000-8000-00805f9b34fb"
         self.bs_cmd_ble_id_v1 = "0000cb01-0000-1000-8000-00805f9b34fb"
         self.bs_cmd_ble_id_v2 = 0x12
@@ -291,7 +291,7 @@ class BaseStations(threading.Thread):
                 async with BleakClient(self.mac, loop=_loop) as self.client:
                     # not implemented yet
                     # client.set_disconnected_callback(disconnect_bs_cb)
-                    await self.client.connect()
+                    await self.client.connect(timeout=10)
                     if await self.client.is_connected():
                         logging.debug(self.label + " connected")
                         self.connected = True
@@ -1502,6 +1502,8 @@ def bs_discovery(systray):
         maininst.blelock = False
 
     try:
+        scanloop = asyncio.new_event_loop()
+        scanloop.set_debug(False)
         maininst.disco = True
         bs_paired = 0
         logging.info("Starting Basestations discovery")
@@ -1549,8 +1551,6 @@ def bs_discovery(systray):
             return
         logging.debug("Starting BLE discovery...")
         try:
-            scanloop = asyncio.new_event_loop()
-            scanloop.set_debug(False)
             while maininst.blelock:
                 time.sleep(0.2)
             maininst.blelock = True
@@ -1572,8 +1572,10 @@ def bs_discovery(systray):
                 for base in maininst.stations:
                     base_list = base.split(" ")
                     if re.search(r'(' + maininst.bs1thr.getshortsnhx() + ')$', base_list[1].upper()):
+                        logging.debug("Add BS: " + str(maininst.bs1thr.getshortsnhx()))
                         addbs(maininst.bs1thr, base)
                     if re.search(r'(' + maininst.bs2thr.getshortsnhx() + ')$', base_list[1].upper()):
+                        logging.debug("Add BS: " + str(maininst.bs2thr.getshortsnhx()))
                         addbs(maininst.bs2thr, base)
         except Exception as err:
             maininst.blelock = False
@@ -1581,12 +1583,14 @@ def bs_discovery(systray):
             logging.error("BLE discovery exception: " + str(err))
             toast_err("BLE Discovery exception: " + str(err))
         time.sleep(maininst.bs_disco_sleep)
+        scanloop.close()
         maininst.disco = False
         maininst.bs1thr.setlock(False)
         time.sleep(1)
         maininst.bs2thr.setlock(False)
         logging.info("Basestations discovery done")
     except Exception as err:
+        scanloop.close()
         maininst.disco = False
         maininst.blelock = False
         logging.error("Main discovery exception: " + str(err))
