@@ -1,5 +1,9 @@
 # pimax_bs_manager - Pimax HTC Base Station manager for Windows
 
+
+## Obsolete, new BSManager at: https://github.com/mann1x/BSManager
+
+
 Original code from:
 https://github.com/TheMalkavien/lhbsv1_pimax
 
