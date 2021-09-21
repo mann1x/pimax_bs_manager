@@ -1,9 +1,9 @@
 bleak==0.5.0
 infi.systray==0.1.11
 pypiwin32==223
-pywin32==223
+pywin32
 pywin32-ctypes==0.2.0
 pywinusb==0.4.2
-urllib3==1.24.2
+urllib3
 win10toast==0.9
 wxpython==4.0.4
